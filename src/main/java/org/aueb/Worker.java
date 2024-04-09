@@ -1,7 +1,9 @@
 package org.aueb;
 
 import org.aueb.entities.Hotel;
+import org.aueb.util.JSONUtils;
 import org.aueb.util.SocketUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -13,110 +15,104 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Worker extends Thread {
-    private final ArrayList<Hotel> assignedHotels;
-    private final JSONParser parser = new JSONParser();
-    private final ServerSocket serverSocket;
-
+public class Worker {
     private static final Logger logger = LoggerFactory.getLogger(Worker.class);
-
-    private DataInputStream inputStream;
-
-    private DataOutputStream outputStream;
-
-    private ObjectInputStream objectInputStream;
-
-    private ObjectOutputStream objectOutputStream;
-    private int id;
-
-
+    private final ArrayList<Hotel> hotels;
+    private final JSONParser parser = new JSONParser();
+    private ServerSocket serverSocket;
+    private Socket connection;
+    private long id;
     private int port;
 
-
-
-    public Worker(int id, int port) throws IOException {
+    public Worker(int id, int port) {
         this.id = id;
         this.port = port;
-        serverSocket = new ServerSocket(port);
-        assignedHotels = new ArrayList<>();
+        hotels = new ArrayList<>();
     }
 
+    public static void main(String[] args) throws IOException {
+        int numWorkerNodes = Constants.NUM_WORKER_NODES;
+        int port = 6000;
+
+        for (int i = 0; i < numWorkerNodes; i++) {
+//            port += 1;
+            int finalPort = port + 1;
+            port += 1;
+            int finalI = i;
+            Worker worker = new Worker(finalI, finalPort);
+            worker.openServer(finalPort);
+
+        }
+    }
+    void openServer(int port) {
+        try {
+            serverSocket = new ServerSocket(port);
+
+            while (true) {
+                connection = serverSocket.accept();
+                Thread t = new WorkerConnectionHandler(connection, hotels, id);
+                t.start();
+            }
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        } finally {
+            try {
+                serverSocket.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+    }
     public long getId() {
         return id;
     }
 
-    public int getPort() {
-        return port;
-    }
-    public void run() {
-        try {
-            // Accept a new client connection
-            Socket clientSocket = serverSocket.accept();
+    private void receiveHotels(String hotelsJsonString) {
+        JSONObject jsonObject = JSONUtils.parseJSONString(hotelsJsonString);
+        JSONArray hotelsArray = (JSONArray) jsonObject.get("hotels");
 
-            // Create input and output streams for the client
-            inputStream = SocketUtils.createDataInputStream(clientSocket);
-            outputStream = SocketUtils.createDataOutputStream(clientSocket);
+        if (!hotelsArray.isEmpty()) {
+            for (Object hotelObj : hotelsArray) {
+                JSONObject hotel = (JSONObject) hotelObj;
+                logger.info("Hotel: " + hotel.toString());
+                int manager_id = ((Long) hotel.get("manager_id")).intValue();
+                int numPeople = ((Long) hotel.get("numPeople")).intValue();
+                int numReviews = ((Long) hotel.get("numReviews")).intValue();
+                double stars = ((Number) hotel.get("stars")).doubleValue();
+                double price = ((Number) hotel.get("price")).doubleValue();
+                String hotelName = hotel.get("hotelName").toString();
+                String area = hotel.get("area").toString();
+                String roomImage = hotel.get("hotelImage").toString();
+                String availableDate = (String) hotel.get("availableDates");
 
-            objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-            objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
-
-
-            logger.info("New client connected: " + clientSocket.getRemoteSocketAddress());
-
-            String request = SocketUtils.safeReceive(inputStream);
-            JSONObject jsonObject = (JSONObject) parser.parse(request);
-            String identity= jsonObject.get("identity").toString();
-            if (identity.equals("Manager")) {
-                logger.info("Managerrrr");
-                String option = jsonObject.get("").toString();
-                if (option.equals("1")) {
-                    addHotelToManager(jsonObject);
-                } else if (option.equals("2")) {
-                    addAvailableDates(jsonObject);
-                }
+                this.hotels.add(new Hotel(hotelName, numPeople, area, stars, numReviews, roomImage, price, availableDate, manager_id));
             }
-
-            logger.info(request);
-            logger.info("Received request from master, worker_id: " + id);
-
-        } catch (IOException e) {
-            System.out.println("Error accepting client connection: " + e.getMessage());
-            e.printStackTrace();
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    private void addAvailableDates(JSONObject jsonObject) {
-    }
+
+
+//    private void addAvailableDates(JSONObject jsonObject) {
+//    }
 
     public void addHotel(Hotel hotel) {
-        assignedHotels.add(hotel);
+        hotels.add(hotel);
     }
 
     private void addHotelToManager(JSONObject jsonObject) throws IOException {
         int manager_id = ((Long) jsonObject.get("id")).intValue();
         String hotelName = jsonObject.get("hotelName").toString();
-        String noOfPersons =jsonObject.get("noOfPersons").toString();
-        int noOfReviews = ((Long) jsonObject.get("noOfReviews")).intValue();
+        int numPeople = ((Long) jsonObject.get("numPeople")).intValue();
+        int numReviews = ((Long) jsonObject.get("numReviews")).intValue();
         String area = jsonObject.get("area").toString();
         double stars = ((Number) jsonObject.get("stars")).doubleValue();
         String roomImage = jsonObject.get("hotelImage").toString();
         double price = ((Number) jsonObject.get("price")).doubleValue();
 
 
-        Hotel newHotel= new Hotel(hotelName,noOfPersons,area,stars,noOfReviews,roomImage,price," ",manager_id);
+        Hotel newHotel = new Hotel(hotelName, numPeople, area, stars, numReviews, roomImage, price, " ", manager_id);
         addHotel(newHotel);
-        objectOutputStream.writeObject(newHotel);
-    }
-
-    public static void main(String[] args) throws IOException {
-////        int numWorkerNodes = 3;
-////        for (int i = 0; i < numWorkerNodes; i++) {
-////            int port = 8001 + i;
-////            Worker worker = new Worker(port);
-////            worker.start(); // Correctly start the thread
-////        }
+        //objectOutputStream.writeObject(newHotel);
     }
 }
 

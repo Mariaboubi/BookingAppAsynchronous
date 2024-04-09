@@ -1,20 +1,23 @@
 package org.aueb.entities;
 
+import org.json.simple.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Hotel {
-    //private static final AtomicInteger id_counter = new AtomicInteger(0);
-    //protected final int id;
+    private static final AtomicInteger id_counter = new AtomicInteger(0);
+    protected final int id;
     private String hotelName; // name of the hotel
-    private String noOfPeople; // number of people
+    private int numPeople; // number of people
     private String area; // the area of the hotel
     private double stars; // the stars of the hotel
-    private int noOfReviews; // number of reviews
+    private int numReviews; // number of reviews
     private String hotelImage; // the path of the room image
     private String availableDates; // available dates
 
-    private final Map<Client,String> reservations ;
+    private final Map<Client, String> reservations;
 
     public Double getPrice() {
         return price;
@@ -28,34 +31,18 @@ public class Hotel {
 
     private int manager_id; // the manager of the hotel
 
-    //public Manager manager;
-
-
-//    public Hotel(String roomName, String noOfPeople, String area, double stars, int noOfReviews, String hotelImage, Double price,String availableDates,Manager manager) {
-//        this.hotelName=roomName;
-//        this.noOfPeople= noOfPeople;
-//        this.area=area;
-//        this.stars=stars;
-//        this.noOfReviews=noOfReviews;
-//        this.hotelImage=hotelImage;
-//        this.price = price;
-//        this.manager=manager;
-//        //this.id = id_counter.incrementAndGet();
-//        //System.out.println("Created hotel with id: " + this.id);
-//    }
-    public Hotel(String roomName, String noOfPeople, String area, double stars, int noOfReviews, String hotelImage, Double price,String availableDates,int manager_id) {
-        this.hotelName=roomName;
-        this.noOfPeople= noOfPeople;
-        this.area=area;
-        this.stars=stars;
-        this.noOfReviews=noOfReviews;
-        this.hotelImage=hotelImage;
+    public Hotel(String roomName, int numPeople, String area, double stars, int numReviews, String hotelImage, Double price, String availableDates, int manager_id) {
+        this.hotelName = roomName;
+        this.numPeople = numPeople;
+        this.area = area;
+        this.stars = stars;
+        this.numReviews = numReviews;
+        this.hotelImage = hotelImage;
         this.price = price;
-        this.manager_id=manager_id;
-        //this.id = id;
-        this.availableDates= availableDates;
-        reservations= new HashMap<>();
-
+        this.manager_id = manager_id;
+        this.id = id_counter.incrementAndGet();
+        this.availableDates = availableDates;
+        reservations = new HashMap<>();
     }
 
     // Setters
@@ -63,8 +50,8 @@ public class Hotel {
         this.hotelName = hotelName;
     }
 
-    public void setNoOfPeople(String noOfPersons) {
-        this.noOfPeople = noOfPersons;
+    public void setNumPeople(int numPeople) {
+        this.numPeople = numPeople;
     }
 
     public void setArea(String area) {
@@ -75,8 +62,8 @@ public class Hotel {
         this.stars = stars;
     }
 
-    public void setNoOfReviews(int noOfReviews) {
-        this.noOfReviews = noOfReviews;
+    public void setNumReviews(int numReviews) {
+        this.numReviews = numReviews;
     }
 
     public void setRoomImage(String roomImage) {
@@ -92,8 +79,8 @@ public class Hotel {
     }
 
     // Getters
-    public String getNoOfPeople() {
-        return noOfPeople;
+    public int getNumPeople() {
+        return numPeople;
     }
 
     public String getArea() {
@@ -104,20 +91,22 @@ public class Hotel {
         return stars;
     }
 
-    public int getNoOfReviews() {
-        return noOfReviews;
+    public int getNumReviews() {
+        return numReviews;
     }
 
     public String getRoomImage() {
         return hotelImage;
     }
 
-    public int getManager() {
+    public int getManagerId() {
         return manager_id;
     }
+
     public String getHotelName() {
         return hotelName;
     }
+
     public String getAvailableDates() {
         return availableDates;
     }
@@ -133,15 +122,29 @@ public class Hotel {
     public String toString() {
         return
                 " hotelName='" + hotelName + '\'' +
-                        ", number of people ='" + noOfPeople + '\'' +
+                        ", number of people ='" + numPeople + '\'' +
                         ", area='" + area + '\'' +
                         ", stars=" + stars +
-                        ", number Of reviews=" + noOfReviews +
+                        ", number Of reviews=" + numReviews +
                         ", availableDates='" + availableDates + '\'' +
-                        ", price=" + price ;
+                        ", price=" + price;
     }
 
-    public void addReservations(Client client,String dates){
-        this.reservations.put(client,dates);
+    public JSONObject toJson() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("hotelName", hotelName);
+        jsonObject.put("numPeople", numPeople);
+        jsonObject.put("area", area);
+        jsonObject.put("stars", stars);
+        jsonObject.put("numReviews", numReviews);
+        jsonObject.put("hotelImage", hotelImage);
+        jsonObject.put("price", price);
+        jsonObject.put("availableDates", availableDates);
+        jsonObject.put("manager_id", manager_id);
+        return jsonObject;
+    }
+
+    public void addReservations(Client client, String dates) {
+        this.reservations.put(client, dates);
     }
 }

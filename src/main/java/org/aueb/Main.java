@@ -54,14 +54,14 @@ public class Main {
 //                Manager manager = managerMap.get(manager_id);
 //                String hotelName  = (String) hotel.get("hotelName");
 //                String noOfPersons= (String) hotel.get("noOfPersons");
-//                int noOfReviews = ((Long) hotel.get("noOfReviews")).intValue();
+//                int numReviews = ((Long) hotel.get("numReviews")).intValue();
 //                String area= (String) hotel.get("area");
 //                double stars = ((Number) hotel.get("stars")).doubleValue();
 //                String roomImage  = (String) hotel.get("hotelImage");
 //                double price = ((Number) hotel.get("price")).doubleValue();
 //                String availableDate  = (String) hotel.get("availableDates");
 //
-//                Hotel newHotel= new Hotel( hotelName,noOfPersons,area,stars,noOfReviews,roomImage,price,availableDate,manager);
+//                Hotel newHotel= new Hotel( hotelName,noOfPersons,area,stars,numReviews,roomImage,price,availableDate,manager);
 //                if(newHotel.getHotelName().equals("MyPortoVilla")){
 //                    newHotel.addReservations(client,"2024/07/03 - 2024/07/09");
 //                }
