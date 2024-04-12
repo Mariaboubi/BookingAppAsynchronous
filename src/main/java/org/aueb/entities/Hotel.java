@@ -3,6 +3,7 @@ package org.aueb.entities;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -15,7 +16,7 @@ public class Hotel {
     private double stars; // the stars of the hotel
     private int numReviews; // number of reviews
     private String hotelImage; // the path of the room image
-    private String availableDates; // available dates
+    private List<String> availableDates; // available dates
 
     private final Map<Client, String> reservations;
 
@@ -31,7 +32,7 @@ public class Hotel {
 
     private int manager_id; // the manager of the hotel
 
-    public Hotel(String roomName, int numPeople, String area, double stars, int numReviews, String hotelImage, Double price, String availableDates, int manager_id) {
+    public Hotel(String roomName, int numPeople, String area, double stars, int numReviews, String hotelImage, Double price, List<String> availableDates, int manager_id) {
         this.hotelName = roomName;
         this.numPeople = numPeople;
         this.area = area;
@@ -70,10 +71,13 @@ public class Hotel {
         this.hotelImage = roomImage;
     }
 
-    public void setAvailableDates(String availableDates) {
+    public void setAvailableDates(List<String> availableDates) {
         this.availableDates = availableDates;
     }
 
+    public void addAvailableDates(String availableDates) {
+        this.availableDates.add(availableDates);
+    }
     public void setManager(int manager_id) {
         this.manager_id = manager_id;
     }
@@ -107,7 +111,7 @@ public class Hotel {
         return hotelName;
     }
 
-    public String getAvailableDates() {
+    public List<String> getAvailableDates() {
         return availableDates;
     }
 //    //public int getId() {

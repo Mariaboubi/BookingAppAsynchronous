@@ -1,5 +1,6 @@
 package org.aueb.util;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -18,6 +19,14 @@ public class JSONUtils {
             return null;
         }
     }
-
+    public static JSONArray parseJSONArray(String data) {
+        JSONParser parser = new JSONParser();
+        try {
+            return (JSONArray) parser.parse(data);
+        } catch (ParseException e) {
+            System.out.println("Failed to parse JSON array: " + e.getMessage());
+            return null;
+        }
+    }
 
 }

@@ -22,13 +22,14 @@ import java.util.*;
 public class Master {
 
     private final ArrayList<Hotel> hotels;
-    private final JSONParser parser = new JSONParser();
     private final Logger logger = LoggerFactory.getLogger(Master.class);
     private final Map<Integer, WorkerInfo> workerInfoMap;
     private List<User> users;
     private ServerSocket providerSocket;
     private Socket connection = null;
     private int numWorkerNodes;
+
+    private final List<Integer> workerPorts = Arrays.asList(6001, 6002, 6003);
 
     public Master(int numWorkerNodes) {
         this.users = new ArrayList<>();
@@ -79,7 +80,7 @@ public class Master {
         manager = new Manager("maria", "boubi", "mariab", "1234");
         users.add(manager);
 
-        manager = new Manager("eleni", "zanou", "zanou", "4444");
+        manager = new Manager("eleni", "zanou", "eleni", "1234");
         users.add(manager);
 
         manager = new Manager("mariaSam", "samara", "samaraM", "maria111");
@@ -129,60 +130,51 @@ public class Master {
     }
 
     private void connectToWorkers() {
-        int port = 6000;
-        int num_workers = Constants.NUM_WORKER_NODES;
-        for (int worker_id = 0; worker_id < num_workers; worker_id++) {
 
-            int finalPort = port + 1;
-            port += 1;
-            logger.info("Port: " + port);
-            int finalWorker_id = worker_id;
-            logger.info("Connecting to worker " + worker_id + " on port " + finalPort);
-            Socket workerSocket = SocketUtils.createSocket("localhost", finalPort);
-            try {
-                workerSocket.setSoTimeout(10000);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            WorkerInfo workerInfo = new WorkerInfo(
-                    finalWorker_id,
-                    workerSocket,
-                    SocketUtils.createDataInputStream(workerSocket),
-                    SocketUtils.createDataOutputStream(workerSocket));
-
-            workerInfoMap.put(finalWorker_id, workerInfo);
-
-
+        for (int i = 0; i < workerPorts.size(); i++) {
+            logger.info("Connecting to worker " + i + " on port " + workerPorts.get(i));
+            int workerPort = workerPorts.get(i); // Corresponding port for the worker
+            Socket workerSocket = SocketUtils.createSocket("localhost", workerPort);
+            DataInputStream dis = SocketUtils.createDataInputStream(workerSocket);
+            DataOutputStream dos = SocketUtils.createDataOutputStream(workerSocket);
+            workerInfoMap.put(i, new WorkerInfo(i, workerSocket, dis, dos));
         }
     }
-
 
     private void readHotels() {
         try {
             JSONObject jsonObject = JSONReaderWriter.readJsonFile(Constants.JSON_FILE_PATH);
             JSONArray hotelsArray = (JSONArray) jsonObject.get("hotels");
 
-            // Iterate through the hotels array
             for (Object hotelObj : hotelsArray) {
                 JSONObject hotel = (JSONObject) hotelObj;
-                int manager_id = ((Long) hotel.get("manager_id")).intValue();
-                int numReviews = ((Long) hotel.get("numReviews")).intValue();
-                int numPeople = ((Long) hotel.get("numPeople")).intValue();
-                double stars = ((Number) hotel.get("stars")).doubleValue();
-                double price = ((Number) hotel.get("price")).doubleValue();
-                String hotelName = (String) hotel.get("hotelName");
-                String area = (String) hotel.get("area");
-                String roomImage = (String) hotel.get("hotelImage");
-                String availableDate = (String) hotel.get("availableDates");
 
-                hotels.add(new Hotel(hotelName, numPeople, area, stars, numReviews, roomImage, price, availableDate, manager_id));
+                // Use default values if keys are missing or values are null
+                int manager_id = hotel.get("manager_id") == null ? 0 : ((Long) hotel.get("manager_id")).intValue();
+                int numReviews = hotel.get("numReviews") == null ? 0 : ((Long) hotel.get("numReviews")).intValue();
+                int numPeople = hotel.get("numPeople") == null ? 0 : ((Long) hotel.get("numPeople")).intValue();
+                double stars = hotel.get("stars") == null ? 0.0 : ((Number) hotel.get("stars")).doubleValue();
+                double price = hotel.get("price") == null ? 0.0 : ((Number) hotel.get("price")).doubleValue();
+                String hotelName = (String) hotel.getOrDefault("hotelName", "Unknown");
+                String area = (String) hotel.getOrDefault("area", "Unknown");
+                String roomImage = (String) hotel.getOrDefault("hotelImage", "default.png");
+
+                List<String> availableDates = new ArrayList<>();
+                Object availableDatesObj = hotel.get("availableDates");
+
+                if (availableDatesObj instanceof JSONArray) {
+                    JSONArray jsonAvailableDates = (JSONArray) availableDatesObj;
+                    for (Object dateObj : jsonAvailableDates) {
+                        availableDates.add((String) dateObj);
+                    }
+                }
+
+                hotels.add(new Hotel(hotelName, numPeople, area, stars, numReviews, roomImage, price, availableDates, manager_id));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Consider more specific error handling depending on your application's needs
         }
-
     }
-
     public void associateHotelsWithManagers() {
         Map<Integer, Manager> managerMap = new HashMap<>();
         for (User user : users) {

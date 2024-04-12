@@ -2,7 +2,9 @@ package org.aueb.consoles;
 
 import org.aueb.entities.User;
 import org.aueb.util.JSONUtils;
+import org.aueb.util.Response;
 import org.aueb.util.SocketUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -60,26 +62,6 @@ public class Console {
             }else{
                 directToConsole(response);
             }
-//            if (string_response.equals("not authenticated")) {
-//                System.out.println("Username or password are incorrect.");
-//                while (true) {
-//                    System.out.println("1. Try again");
-//                    System.out.println("2. Create an account");
-//                    System.out.print("> ");
-//
-//                    String option = scanner.nextLine();
-//                    if (option.equals("1")) {
-//                        break;
-//                    }
-//                    if (option.equals("2")) {
-//                        registerMenu();
-//                        break;
-//                    } else {
-//                        System.out.println("Invalid option");
-//                    }
-//                }
-//            }
-
 
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -165,7 +147,9 @@ public class Console {
             System.out.println("2.Book a hotel: ");
             System.out.println("3.Rate a hotel (1-5): ");
             System.out.println("4. Exit");
-            int option = Integer.parseInt(scanner.nextLine());
+            String optionInput = scanner.nextLine();
+            int option = Integer.parseInt(optionInput);
+
             if (option == 1) {
                 this.filterHotel();
             } else if (option == 2) {
@@ -199,9 +183,9 @@ public class Console {
 
     public void rateHotel() {
 
-        System.out.println("Give the name of the hotel you want to rate");
+        System.out.print("Give the name of the hotel you want to rate: ");
         String hotelName = scanner.nextLine().trim();
-        System.out.println("Give your rating(1-5): ");
+        System.out.print("Give your rating(1-5): ");
         double newRating = Double.parseDouble(scanner.nextLine());
         JSONObject rate = new JSONObject();
 
@@ -210,6 +194,14 @@ public class Console {
         rate.put("newRating", newRating);
 
         SocketUtils.safeSend(this.outputStream, rate.toJSONString());
+
+        JSONObject response = Response.fromString(SocketUtils.safeReceive(this.inputStream));
+        if (response.get("status").equals(Response.Status.SUCCESS.name())) {
+            //System.out.println("Reservations: " + response.get("reservations"));
+            System.out.println(response.get("message"));
+        } else {
+            System.out.println("Rate was unsuccessful");
+        }
     }
 
     private void filterHotel() {
@@ -225,10 +217,60 @@ public class Console {
         String[] options = option.split(",");
 
         JSONObject filter = new JSONObject();
-        filter.put("type", "1");
-        for (int i = 0; i < options.length; i++) {
-            filter.put("filter_" + i, options[i]);
+        JSONArray selectedFilters = new JSONArray();
+
+        for (String optionStr : options) {
+            int filterOption = Integer.parseInt(optionStr.trim());
+            switch(filterOption) {
+                case 1:
+                    System.out.println("Enter the area you're interested in:");
+                    String area = scanner.nextLine();
+
+                    selectedFilters.add("1");
+                    filter.put("area",area);
+                    break;
+
+                case 2:
+                    System.out.println("Enter the date you're interested in (YYYY-MM-DD):");
+                    String date = scanner.nextLine();
+
+                    selectedFilters.add("2");
+                    filter.put("date",date);
+                    break;
+
+                case 3:
+                    System.out.println("Choose the number of persons ");
+                    String numPeopleStr = scanner.nextLine();
+                    int numPeople = Integer.parseInt(numPeopleStr);
+
+                    selectedFilters.add("3");
+                    filter.put("numPeople",numPeople);
+                    break;
+                case 4:
+                    System.out.println("Choose the maximum price per night ");
+                    String priceStr = scanner.nextLine();
+                    double price = Double.parseDouble(priceStr);
+
+                    selectedFilters.add("4");
+                    filter.put("price",price);
+                    break;
+
+                case 5:
+                    System.out.println("Choose the stars of the hotel ");
+                    String starsStr = scanner.nextLine();
+                    double stars = Double.parseDouble(starsStr);
+
+                    selectedFilters.add("5");
+                    filter.put("stars",stars);
+                    break;
+            }
         }
+
+        filter.put("type", "1");
+
+        filter.put("filters", selectedFilters);
+
+
         SocketUtils.safeSend(this.outputStream, filter.toJSONString());
 
     }
@@ -254,28 +296,7 @@ public class Console {
             } else {
                 System.out.println("Invalid option.");
             }
-            String response= SocketUtils.safeReceive(inputStream);
 
-            JSONObject jsonObject_response = JSONUtils.parseJSONString(response);
-            String type = jsonObject_response.get("option").toString();
-            if(type.equals("1")){
-                String success = jsonObject_response.get("Success").toString();
-                if(success.equalsIgnoreCase("true")){
-                    System.out.println("Hotel added successfully");
-                } else {
-                    System.out.println("Hotel not added");
-                }
-            } else if(type.equals("2")){
-                String foundHotel = jsonObject_response.get("foundHotel").toString();
-                if(foundHotel.equalsIgnoreCase("true")){
-                    System.out.println("Hotel available dates added successfully");
-                } else {
-                    System.out.println("Hotel available dates not added");
-                }
-            } else if(type.equals("3")){
-                String reservations = jsonObject_response.get("reservations").toString();
-                System.out.println("Reservations" + reservations);
-            }
         }
     }
 
@@ -283,6 +304,14 @@ public class Console {
         JSONObject showReservations = new JSONObject();
         showReservations.put("type", "3");
         SocketUtils.safeSend(this.outputStream, showReservations.toJSONString());
+
+        // handle response
+        JSONObject response = Response.fromString(SocketUtils.safeReceive(this.inputStream));
+        if (response.get("status").equals(Response.Status.SUCCESS)) {
+            System.out.println("Reservations: " + response.get("reservations"));
+        } else {
+            System.out.println("Reservations not found");
+        }
     }
 
     public void addAvailableDates() throws Exception {
@@ -297,6 +326,14 @@ public class Console {
         addDates.put("availableDates", availableDates);
 
         SocketUtils.safeSend(this.outputStream, addDates.toJSONString());
+
+        // handle response
+        JSONObject response = Response.fromString(SocketUtils.safeReceive(this.inputStream));
+        if (response.get("status").equals(Response.Status.SUCCESS.name())) {
+            System.out.println("Available dates added successfully");
+        } else {
+            System.out.println("Available dates not added");
+        }
     }
 
 
@@ -345,9 +382,20 @@ public class Console {
         newHotel.put("numReviews", numReviews);
         newHotel.put("hotelImage", hotelImage);
 
-        SocketUtils.safeSend(this.outputStream, newHotel.toJSONString());
+        SocketUtils.safeSend(outputStream, newHotel.toJSONString());
+
+        // handle response
+        String responseString = SocketUtils.safeReceive(this.inputStream);
+        JSONObject response = JSONUtils.parseJSONString(responseString);
 
 
+//        JSONObject response = Response.fromString(SocketUtils.safeReceive(this.inputStream));
+
+        if (response.get("status").equals(Response.Status.SUCCESS.name())) {
+            System.out.println("Hotel added successfully");
+        } else {
+            System.out.println("Hotel not added");
+        }
     }
 
 
