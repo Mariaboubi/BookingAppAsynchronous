@@ -13,7 +13,7 @@
           "2024-06-15 - 2024-06-25"
         ]
       },
-      "hotelImage":"myportovilla.png",
+      "hotelImage":"hotel_images\/Myportovilla.png",
       "manager_id":1,
       "price":500,
       "numReviews":26,
@@ -33,7 +33,7 @@
           "2024-07-01 - 2024-07-15"
         ]
       },
-      "hotelImage":"hotelgrandebretagne.png",
+      "hotelImage":"hotel_images\/HotelGrandeBretagne.png",
       "manager_id":1,
       "price":300,
       "numReviews":5529,
@@ -57,7 +57,7 @@
           "2024-07-01 - 2024-07-15"
         ]
       },
-      "hotelImage":"athensgem.png",
+      "hotelImage":"hotel_images\/AthensGem.png",
       "manager_id":2,
       "price":150,
       "numReviews":58,
@@ -78,7 +78,7 @@
           "2024-08-31 - 2024-09-03"
         ]
       },
-      "hotelImage":"labranda.png",
+      "hotelImage":"hotel_images\/Labranda.png",
       "manager_id":1,
       "price":200,
       "numReviews":100,
@@ -99,7 +99,7 @@
           "2024-08-01 - 2024-08-05"
         ]
       },
-      "hotelImage":"elgrecohotel.png",
+      "hotelImage":"hotel_images\/ElGrecoHotel.png",
       "manager_id":3,
       "price":110,
       "numReviews":224,
@@ -122,7 +122,7 @@
           "2024-06-27 - 2024-06-30"
         ]
       },
-      "hotelImage":"electrapalace.png",
+      "hotelImage":"hotel_images\/ElectraPalace.png",
       "manager_id":3,
       "price":400,
       "numReviews":4503,
@@ -141,7 +141,7 @@
           "2024-06-01 - 2024-06-06"
         ]
       },
-      "hotelImage":"cityplazaapartments.png",
+      "hotelImage":"hotel_images\/CityPlazaApartments.png",
       "manager_id":2,
       "price":80,
       "numReviews":113,
@@ -162,7 +162,7 @@
           "2024-08-31 - 2024-09-03"
         ]
       },
-      "hotelImage":"stellaisland.png",
+      "hotelImage":"hotel_images\/StellaIsland.png",
       "manager_id":4,
       "price":250,
       "numReviews":1216,

@@ -1,30 +1,26 @@
 package org.aueb.entities;
 
-import org.json.simple.parser.JSONParser;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+
+/**
+ * Represents a manager in the hotel management system.
+ * A manager is responsible for managing one or more hotels.
+ */
 public class Manager extends User {
-    private final Scanner scanner = new Scanner(System.in);
-    private List<Hotel> hotelsManaged; // the hotels that manages
-    private final JSONParser parser = new JSONParser();
+    private final List<Hotel> hotelsManaged; // List to store the hotels managed by this manager
 
     public Manager(String name, String lastName, String userName, String password) {
         super(name, lastName, userName, password);
-        this.hotelsManaged = new ArrayList<>();
+        this.hotelsManaged = new ArrayList<>(); // Initialize the list of hotels managed by this manager
     }
 
+    /**
+     * Adds a hotel to the list of hotels managed by this manager.
+     * @param hotel The hotel to be managed by this manager.
+     */
     public void addHotelsManaged(Hotel hotel) {
         this.hotelsManaged.add(hotel);
-    }
-
-    public List<Hotel> getHotelsManaged() {
-        return hotelsManaged;
-    }
-
-    public void setHotelsManaged(List<Hotel> hotelsManaged) {
-        this.hotelsManaged = hotelsManaged;
     }
 }
 

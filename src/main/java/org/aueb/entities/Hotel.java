@@ -1,36 +1,32 @@
 package org.aueb.entities;
 
 import org.json.simple.JSONObject;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Represents a hotel with its associated data.
+ * This class includes attributes like hotel name, number of people it can accommodate,
+ * star rating, area, price,..., along with functionalities to manage reservations and available dates.
+ */
 public class Hotel {
+    // counter for the id of the hotel
     private static final AtomicInteger id_counter = new AtomicInteger(0);
-    protected final int id;
-    private String hotelName; // name of the hotel
-    private int numPeople; // number of people
-    private String area; // the area of the hotel
+    protected final int id; // the id of the hotel
+    private final String hotelName; // name of the hotel
+    private final int numPeople; // number of people
+    private final String area; // the area of the hotel
     private double stars; // the stars of the hotel
     private int numReviews; // number of reviews
-    private String hotelImage; // the path of the room image
-    private List<String> availableDates; // available dates
+    private final String hotelImage; // the path of the room image
+    private final Double price; // the price of the hotel
+    private final int manager_id; // the manager of the hotel
+    private final List<String> availableDates; // available dates
 
-    private final Map<Client, String> reservations;
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    private Double price;
-
-    private int manager_id; // the manager of the hotel
+    // A map to hold reservations with client IDs and their corresponding booking dates
+    private Map<Integer, List<String>> reservations;
 
     public Hotel(String roomName, int numPeople, String area, double stars, int numReviews, String hotelImage, Double price, List<String> availableDates, int manager_id) {
         this.hotelName = roomName;
@@ -46,19 +42,7 @@ public class Hotel {
         reservations = new HashMap<>();
     }
 
-    // Setters
-    public void setHotelName(String hotelName) {
-        this.hotelName = hotelName;
-    }
-
-    public void setNumPeople(int numPeople) {
-        this.numPeople = numPeople;
-    }
-
-    public void setArea(String area) {
-        this.area = area;
-    }
-
+    /* setters and getters */
     public void setStars(double stars) {
         this.stars = stars;
     }
@@ -67,28 +51,16 @@ public class Hotel {
         this.numReviews = numReviews;
     }
 
-    public void setRoomImage(String roomImage) {
-        this.hotelImage = roomImage;
-    }
-
-    public void setAvailableDates(List<String> availableDates) {
-        this.availableDates = availableDates;
-    }
-
-    public void addAvailableDates(String availableDates) {
-        this.availableDates.add(availableDates);
-    }
-    public void setManager(int manager_id) {
-        this.manager_id = manager_id;
-    }
-
-    // Getters
     public int getNumPeople() {
         return numPeople;
     }
 
     public String getArea() {
         return area;
+    }
+
+    public Double getPrice() {
+        return price;
     }
 
     public double getStars() {
@@ -114,12 +86,17 @@ public class Hotel {
     public List<String> getAvailableDates() {
         return availableDates;
     }
-//    //public int getId() {
-//        return id;
-//    }
 
-    public Map<Client, String> getReservations() {
+    public Map<Integer,List<String>> getReservations() {
         return reservations;
+    }
+
+    public void setReservations(Map<Integer,List<String>> reservations){
+        this.reservations=reservations;
+    }
+
+    public void addAvailableDates(String availableDates) {
+        this.availableDates.add(availableDates);
     }
 
     @Override
@@ -130,10 +107,16 @@ public class Hotel {
                         ", area='" + area + '\'' +
                         ", stars=" + stars +
                         ", number Of reviews=" + numReviews +
-                        ", availableDates='" + availableDates + '\'' +
-                        ", price=" + price;
+                        ", availableDates=" + availableDates + '\'' +
+                        ", price=" + price+ '\'' +
+                "reservations=" + reservations ;
+
     }
 
+    /**
+     * Converts the hotel object to a JSON object.
+     * @return The JSON object representing the hotel.
+     */
     public JSONObject toJson() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("hotelName", hotelName);
@@ -145,10 +128,27 @@ public class Hotel {
         jsonObject.put("price", price);
         jsonObject.put("availableDates", availableDates);
         jsonObject.put("manager_id", manager_id);
+
+        JSONObject jsonReservations = new JSONObject();
+        for (Map.Entry<Integer, List<String>> entry : reservations.entrySet()) {
+            jsonReservations.put(String.valueOf(entry.getKey()), entry.getValue());
+        }
+
+        jsonObject.put("reservations", jsonReservations);
         return jsonObject;
     }
 
-    public void addReservations(Client client, String dates) {
-        this.reservations.put(client, dates);
+    /**
+     * Adds a reservation to the hotel's reservation list.
+     * @param client The client ID
+     * @param dates The dates to reserve
+     */
+    public void addReservations(Integer client,String dates) {
+        if(reservations.containsKey(client)) {
+            reservations.get(client).add(dates);
+        } else {
+            reservations.put(client, List.of(dates));
+        }
     }
+
 }
