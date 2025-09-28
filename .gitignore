@@ -36,3 +36,13 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+
+# Android / Gradle
+/frontend/.gradle/
+/frontend/**/build/
+/frontend/.idea/
+/frontend/local.properties
+/frontend/.cxx/
+/frontend/captures/
+/frontend/.DS_Store
