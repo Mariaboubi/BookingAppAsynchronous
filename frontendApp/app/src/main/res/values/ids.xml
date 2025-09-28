@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="hotelName" type="id" />
+    <item name="NumOfPeople" type="id" />
+    <item name="Num_of_rates" type="id" />
+    <item name="Rate_layout" type="id" />
+    <item name="Rate" type="id" />
+    <item name="STAR" type="id" />
+    <item name="BookButton" type="id" />
+</resources>

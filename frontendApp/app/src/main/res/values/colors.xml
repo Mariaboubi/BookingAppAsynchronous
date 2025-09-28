@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="navyblue">#00217A</color>
+    <color name="lightblue">#549cf4</color>
+    <color name="gray200">#F5F5F5</color>
+
+    <color name="manager_text_selector">
+    <selector xmlns:android="http://schemas.android.com/apk/res/android">
+        <item android:state_checked="true" android:color="@color/blue" />
+        <item android:state_checked="false" android:color="@color/white" />
+    </selector>
+    </color>
+    <color name="white_transparent">#60FFFFFF</color>
+</resources>
+
