@@ -46,3 +46,5 @@ build/
 /frontend/.cxx/
 /frontend/captures/
 /frontend/.DS_Store
+Thumbs.db
+'@ | Add-Content ".gitignore"
