@@ -25,9 +25,10 @@ The system distinguishes between two types of users:
 ## How to Run (Backend + Frontend)
 1) Start the components in order (each in a separate terminal or using VS Code launch configs):
     - **Reducer**: java -cp target/classes org.aueb.reducer.Reducer
-    - **Workers**: java -cp target/classes org.aueb.worker.Worker 1 6001
-                   java -cp target/classes org.aueb.worker.Worker 2 6002
-                   java -cp target/classes org.aueb.worker.Worker 3 6003
+    - **Workers**:
+        - java -cp target/classes org.aueb.worker.Worker 1 6001
+        - java -cp target/classes org.aueb.worker.Worker 2 6002
+        - java -cp target/classes org.aueb.worker.Worker 3 6003
     - **Master**:  java -cp target/classes org.aueb.master.Master
 
 2) Open Android Studio.
